@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>It's a Beautiful Day! - Interactive English Quiz & AI Tutor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 30%, #e0f2fe 70%, #fef3c7 100%);
+            min-height: 100vh;
+        }
+
+        .font-fun {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .card-gradient-1 {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        .card-gradient-2 {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+        }
+        .card-gradient-3 {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="pb-12 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-emerald-100 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl card-gradient-1 flex items-center justify-center text-white shadow-md font-fun text-xl">
+                    🌿
+                </div>
+                <div>
+                    <h1 class="font-fun font-bold text-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
+                        It's a Beautiful Day!
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium">Bahasa Inggris Kelas 9 • Chapter 5 (Descriptive Text)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="btn-toggle-sound" onclick="toggleSound()" class="p-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition flex items-center gap-1.5" title="Mute/Unmute Suara SFX">
+                    <i id="sound-icon" class="fas fa-volume-up text-emerald-600"></i>
+                    <span id="sound-text">SFX: ON</span>
+                </button>
+
+                <div id="user-header-info" class="hidden flex items-center gap-3">
+                    <span id="role-badge" class="px-3 py-1 rounded-full text-xs font-bold shadow-xs"></span>
+                    <button onclick="logout()" class="text-xs text-slate-500 hover:text-red-500 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+
+        <div id="view-login" class="max-w-md mx-auto my-8">
+            <div class="bg-white rounded-3xl p-8 shadow-xl border-4 border-emerald-100 text-center relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-28 h-28 bg-emerald-200 rounded-full blur-2xl opacity-60"></div>
+                <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-sky-200 rounded-full blur-2xl opacity-60"></div>
+
+                <span class="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider mb-3">Selamat Datang! 🌞</span>
+                <h2 class="font-fun text-3xl font-bold text-slate-800 mb-2">Pilih Peran Anda</h2>
+                <p class="text-xs text-slate-500 mb-6">Silakan pilih peran untuk masuk ke portal kuis atau dashboard guru.</p>
+
+                <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-6">
+                    <button id="btn-tab-student" onclick="setRoleForm('student')" class="py-2.5 font-fun text-sm rounded-xl font-bold transition bg-white text-emerald-600 shadow-sm">
+                        👨‍🎓 Siswa
+                    </button>
+                    <button id="btn-tab-teacher" onclick="setRoleForm('teacher')" class="py-2.5 font-fun text-sm rounded-xl font-bold text-slate-500 hover:text-emerald-600 transition">
+                        👩‍🏫 Guru
+                    </button>
+                </div>
+
+                <form id="form-student" onsubmit="handleStudentLogin(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Siswa</label>
+                        <input type="text" id="student-name-input" required placeholder="Contoh: Siska Melati" class="w-full px-4 py-3 rounded-xl border-2 border-emerald-100 focus:border-emerald-500 focus:outline-none text-sm transition">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 card-gradient-1 text-white font-fun font-bold text-lg rounded-xl shadow-lg hover:opacity-95 transition transform active:scale-98">
+                        Mulai Kuis Sekarang 🚀
+                    </button>
+                </form>
+
+                <form id="form-teacher" onsubmit="handleTeacherLogin(event)" class="space-y-4 text-left hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Guru</label>
+                        <input type="text" id="teacher-name-input" required placeholder="Contoh: Pak Budi, S.Pd." class="w-full px-4 py-3 rounded-xl border-2 border-sky-100 focus:border-sky-500 focus:outline-none text-sm transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Kode Akses Guru</label>
+                        <input type="password" id="teacher-code-input" required placeholder="Masukkan Kode" class="w-full px-4 py-3 rounded-xl border-2 border-sky-100 focus:border-sky-500 focus:outline-none text-sm transition">
+                    </div>
+                    <p id="teacher-login-error" class="text-xs text-red-500 font-semibold hidden"><i class="fas fa-exclamation-circle"></i> Kode akses salah! Silakan periksa kembali.</p>
+                    <button type="submit" class="w-full py-3.5 card-gradient-2 text-white font-fun font-bold text-lg rounded-xl shadow-lg hover:opacity-95 transition transform active:scale-98">
+                        Masuk Dashboard Guru 📊
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-student-main" class="hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-slate-100 gap-2">
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="switchStudentTab('quiz')" id="tab-quiz" class="px-4 py-2.5 rounded-xl font-fun font-bold text-xs sm:text-sm bg-emerald-600 text-white shadow-md transition">
+                        🎯 Kuis Descriptive Text
+                    </button>
+                </div>
+                <div class="px-4 py-1.5 bg-emerald-50 border border-emerald-100 rounded-xl text-xs font-bold text-emerald-700">
+                    Siswa: <span id="display-student-name"></span>
+                </div>
+            </div>
+
+            <div id="student-tab-quiz">
+                <div id="quiz-active-screen" class="space-y-6">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-fun font-bold text-lg">
+                                📊
+                            </span>
+                            <div>
+                                <span class="text-xs text-slate-400 font-bold uppercase">Progres Kuis</span>
+                                <p id="quiz-progress-text" class="font-fun text-lg font-bold text-emerald-600">Soal 1 dari 10</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+                                <i class="fas fa-trophy text-amber-500 text-base"></i>
+                                <span>Skor: <span id="live-score">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="question-card" class="bg-white rounded-3xl p-6 shadow-md border-2 border-emerald-50 relative overflow-hidden">
+                    </div>
+                </div>
+
+                <div id="quiz-result-screen" class="hidden space-y-6">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl border-4 border-emerald-100 text-center relative overflow-hidden">
+                        <div class="w-24 h-24 rounded-3xl card-gradient-1 text-white mx-auto flex items-center justify-center text-5xl mb-4 shadow-lg font-fun">
+                            🏆
+                        </div>
+                        <h2 class="font-fun text-3xl font-bold text-slate-800">Kuis Selesai!</h2>
+                        <p class="text-sm text-slate-500 mt-1">Hasil latihan kamu telah tersimpan ke sistem guru.</p>
+
+                        <div class="my-6 p-6 rounded-2xl card-gradient-3 text-white max-w-sm mx-auto shadow-lg relative">
+                            <p class="text-xs font-bold uppercase tracking-wider text-amber-100">Total Skor Kamu</p>
+                            <p id="final-score-display" class="font-fun text-6xl font-extrabold my-1">0</p>
+                            <p id="final-score-eval" class="text-xs font-semibold text-amber-50"></p>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <button onclick="scrollToReview()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white font-fun font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2">
+                                <i class="fas fa-search text-amber-400"></i> Lihat Evaluasi & Pembahasan Soal
+                            </button>
+                            <button onclick="restartStudentQuiz()" class="px-6 py-3 card-gradient-1 text-white font-fun font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2">
+                                <i class="fas fa-redo"></i> Coba Lagi
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="review-section" class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-6">
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <h3 class="font-fun font-bold text-xl text-slate-800 flex items-center gap-2">
+                                <i class="fas fa-list-check text-emerald-600"></i> Evaluasi Jawaban Lengkap
+                            </h3>
+                            <span class="text-xs font-bold text-slate-400">Tanda Hijau (Benar) • Tanda Merah (Salah)</span>
+                        </div>
+                        <div id="review-list" class="space-y-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-teacher-main" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-md border border-sky-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl card-gradient-2 flex items-center justify-center text-white text-2xl font-fun shadow-md">
+                        👩‍🏫
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Dashboard Guru</span>
+                        <h2 class="font-fun text-2xl font-bold text-slate-800" id="display-teacher-name">Ibu Guru</h2>
+                        <p class="text-xs text-slate-500">Hasil Pengerjaan Kuis Siswa - Chapter 5</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="clearAllStudentData()" class="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-xs transition flex items-center gap-1.5 border border-red-200">
+                        <i class="fas fa-trash-alt"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <p class="text-xs font-bold text-slate-400">Total Siswa</p>
+                    <p id="stat-total-students" class="font-fun text-3xl font-bold text-emerald-600 my-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <p class="text-xs font-bold text-slate-400">Rata-rata Kelas</p>
+                    <p id="stat-avg-score" class="font-fun text-3xl font-bold text-sky-600 my-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <p class="text-xs font-bold text-slate-400">Nilai Tertinggi</p>
+                    <p id="stat-max-score" class="font-fun text-3xl font-bold text-amber-500 my-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <p class="text-xs font-bold text-slate-400">Nilai Terendah</p>
+                    <p id="stat-min-score" class="font-fun text-3xl font-bold text-rose-500 my-1">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 overflow-hidden">
+                <h3 class="font-fun font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-medal text-amber-500"></i> Papan Peringkat Hasil Kuis Siswa
+                </h3>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 font-bold uppercase text-slate-400 border-b">
+                            <tr>
+                                <th class="p-3 text-center">Peringkat</th>
+                                <th class="p-3">Nama Siswa</th>
+                                <th class="p-3 text-center">Skor Akhir</th>
+                                <th class="p-3 text-center">Jawaban Benar</th>
+                                <th class="p-3 text-center">Waktu Pengerjaan</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-leaderboard-body" class="divide-y divide-slate-100 font-medium">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="empty-leaderboard-msg" class="text-center py-10 text-slate-400 text-xs hidden">
+                    <i class="fas fa-user-slash text-3xl mb-2 block"></i>
+                    Belum ada siswa yang mengerjakan kuis.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            const text = document.getElementById('sound-text');
+            if (soundEnabled) {
+                icon.className = "fas fa-volume-up text-emerald-600";
+                text.innerText = "SFX: ON";
+                playSFX('correct');
+            } else {
+                icon.className = "fas fa-volume-mute text-slate-400";
+                text.innerText = "SFX: OFF";
+            }
+        }
+
+        function speakQuestionContent() {
+            if (!('speechSynthesis' in window)) {
+                alert("Browser Anda tidak mendukung fitur pembacaan suara (Text-to-Speech).");
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const q = quizQuestions[currentQuestionIdx];
+            
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = q.content;
+            const plainContent = tempDiv.textContent || tempDiv.innerText || "";
+
+            const optionsText = q.options.map((opt, idx) => `Option ${String.fromCharCode(65 + idx)}: ${opt}`).join('. ');
+
+            const fullTextToRead = `Descriptive Text passage: ${plainContent}. ... Question number ${currentQuestionIdx + 1}: ${q.question}. ... Choices: ${optionsText}`;
+
+            const utterance = new SpeechSynthesisUtterance(fullTextToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.88;
+            utterance.pitch = 1.0;
+
+            const btnSpeak = document.getElementById('btn-speak-narrator');
+            if (btnSpeak) {
+                btnSpeak.innerHTML = `<i class="fas fa-spinner fa-spin text-amber-500"></i> Sedang Membaca...`;
+                btnSpeak.classList.add('bg-amber-50', 'border-amber-300');
+            }
+
+            utterance.onend = function() {
+                if (btnSpeak) {
+                    btnSpeak.innerHTML = `<i class="fas fa-volume-up text-emerald-600 text-base"></i> Putar Suara Pembaca Soal`;
+                    btnSpeak.classList.remove('bg-amber-50', 'border-amber-300');
+                }
+            };
+
+            utterance.onerror = function() {
+                if (btnSpeak) {
+                    btnSpeak.innerHTML = `<i class="fas fa-volume-up text-emerald-600 text-base"></i> Putar Suara Pembaca Soal`;
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function playSFX(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                
+                if (type === 'correct') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(180, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'complete') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                        gain.gain.setValueAtTime(0.2, now + (idx * 0.1));
+                        gain.gain.linearRampToValueAtTime(0.01, now + (idx * 0.1) + 0.25);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + (idx * 0.1));
+                        osc.stop(now + (idx * 0.1) + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.error("Audio Web API error:", e);
+            }
+        }
+
+        const defaultQuizQuestions = [
+            {
+                id: 1,
+                labelType: "Descriptive Text",
+                title: "Our School Garden",
+                badgeColor: "bg-emerald-100 text-emerald-700 border-emerald-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-emerald-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-emerald-900 text-sm">OUR SCHOOL GARDEN</p>
+                        <p class="text-slate-600">Our school has a beautiful garden located right in front of the seventh-grade classrooms. It is surrounded by a low white fence. There are many colorful flowers such as roses, sunflowers, and orchids blooming brightly under the warm morning sun.</p>
+                    </div>
+                `,
+                question: "Where is the school garden located?",
+                options: ["Behind the canteen", "In front of the seventh-grade classrooms", "Next to the parking area", "Inside the library"],
+                correct: 1,
+                explanation: "Berdasarkan teks, taman sekolah terletak di depan kelas tujuh ('located right in front of the seventh-grade classrooms')."
+            },
+            {
+                id: 2,
+                labelType: "Descriptive Text",
+                title: "My Beloved Cat, Miko",
+                badgeColor: "bg-sky-100 text-sky-700 border-sky-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-sky-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-sky-900 text-sm">MY PET MIKO</p>
+                        <p class="text-slate-600">I have a pet cat named Miko. He has soft white fur with orange patches on his back. Miko has big green eyes and a long fluffy tail. He loves sleeping on the living room sofa and playing with small rubber balls every afternoon.</p>
+                    </div>
+                `,
+                question: "What color is Miko's fur?",
+                options: ["Pure black", "Soft white with orange patches", "Dark brown with stripes", "Grey and white"],
+                correct: 1,
+                explanation: "Teks menyebutkan: 'He has soft white fur with orange patches on his back'."
+            },
+            {
+                id: 3,
+                labelType: "Descriptive Text",
+                title: "Mount Bromo",
+                badgeColor: "bg-amber-100 text-amber-700 border-amber-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-amber-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-amber-900 text-sm">MOUNT BROMO</p>
+                        <p class="text-slate-600">Mount Bromo is one of the most famous active volcanoes in East Java. It stands majestically inside a vast sea of fine volcanic sand. Many local and foreign tourists visit this mountain early in the morning to witness its breathtaking sunrise scenery.</p>
+                    </div>
+                `,
+                question: "What do tourists usually want to witness early in the morning at Mount Bromo?",
+                options: ["Heavy rainstorm", "Stunning sunrise scenery", "Volcanic eruption lava", "Night stars"],
+                correct: 1,
+                explanation: "Teks menyatakan bahwa wisatawan datang pagi-pagi untuk menyaksikan pemandangan matahari terbit ('witness its breathtaking sunrise scenery')."
+            },
+            {
+                id: 4,
+                labelType: "Descriptive Text",
+                title: "Our Living Room",
+                badgeColor: "bg-teal-100 text-teal-700 border-teal-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-teal-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-teal-900 text-sm">OUR LIVING ROOM</p>
+                        <p class="text-slate-600">Our living room is very cozy and tidy. There is a long soft beige sofa against the light blue wall. In the middle sits a small wooden coffee table with a vase of fresh green plants on top. A large window lets bright sunlight fill the entire room.</p>
+                    </div>
+                `,
+                question: "What is placed on top of the wooden coffee table?",
+                options: ["A television set", "A vase of fresh green plants", "A stack of magazines", "A fruit basket"],
+                correct: 1,
+                explanation: "Pada teks tertulis: '...a small wooden coffee table with a vase of fresh green plants on top'."
+            },
+            {
+                id: 5,
+                labelType: "Descriptive Text",
+                title: "My English Teacher, Mr. Andi",
+                badgeColor: "bg-indigo-100 text-indigo-700 border-indigo-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-indigo-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-indigo-900 text-sm">MR. ANDI</p>
+                        <p class="text-slate-600">Mr. Andi is our favorite English teacher. He is tall and always wears neat glasses. He has a very patient and friendly personality, making all students enjoy his fun and interactive English lessons in the classroom.</p>
+                    </div>
+                `,
+                question: "What kind of personality does Mr. Andi have?",
+                options: ["Strict and angry", "Patient and friendly", "Quiet and lazy", "Serious and fierce"],
+                correct: 1,
+                explanation: "Teks menyatakan: 'He has a very patient and friendly personality'."
+            },
+            {
+                id: 6,
+                labelType: "Descriptive Text",
+                title: "Kuta Beach, Bali",
+                badgeColor: "bg-blue-100 text-blue-700 border-blue-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-blue-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-blue-900 text-sm">KUTA BEACH</p>
+                        <p class="text-slate-600">Kuta Beach is a world-famous tourist destination in Bali. It features a long stretch of clean white sandy coastline and rolling blue waves. In the late afternoon, visitors gather on the shore to enjoy the stunning orange sunset view.</p>
+                    </div>
+                `,
+                question: "When do visitors usually gather on the shore to watch the view at Kuta Beach?",
+                options: ["In the dark midnight", "Early at 5 AM", "In the late afternoon for sunset", "During heavy noon heat"],
+                correct: 2,
+                explanation: "Teks menyebutkan: 'In the late afternoon, visitors gather on the shore to enjoy the stunning orange sunset view'."
+            },
+            {
+                id: 7,
+                labelType: "Descriptive Text",
+                title: "My Bicycle",
+                badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-purple-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-purple-900 text-sm">MY BICYCLE</p>
+                        <p class="text-slate-600">My father gave me a new bicycle on my birthday. It is painted in bright glossy red. It has a small metal basket in front and a comfortable black saddle. I ride it to school every morning with my friends.</p>
+                    </div>
+                `,
+                question: "What color is the writer's bicycle?",
+                options: ["Bright glossy red", "Dark navy blue", "Shiny silver", "Forest green"],
+                correct: 0,
+                explanation: "Teks menyatakan: 'It is painted in bright glossy red'."
+            },
+            {
+                id: 8,
+                labelType: "Descriptive Text",
+                title: "Orangutan",
+                badgeColor: "bg-orange-100 text-orange-700 border-orange-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-orange-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-orange-900 text-sm">THE ORANGUTAN</p>
+                        <p class="text-slate-600">Orangutans are native primates of the rainforests in Borneo and Sumatra. They are famous for their long reddish-brown hair and intelligent brown eyes. They spend most of their lives high up among the tall trees swinging from branch to branch.</p>
+                    </div>
+                `,
+                question: "Where do orangutans live most of their lives?",
+                options: ["Inside deep caves", "High up among tall trees", "Swimming in rivers", "Walking across open deserts"],
+                correct: 1,
+                explanation: "Teks menyebutkan: 'They spend most of their lives high up among the tall trees'."
+            },
+            {
+                id: 9,
+                labelType: "Descriptive Text",
+                title: "Our School Library",
+                badgeColor: "bg-rose-100 text-rose-700 border-rose-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-rose-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-rose-900 text-sm">SCHOOL LIBRARY</p>
+                        <p class="text-slate-600">Our school library is a quiet and comfortable place. The walls are painted light green, and long wooden bookshelves are neatly arranged along the walls. Students love spending their break time reading storybooks and encyclopedias here.</p>
+                    </div>
+                `,
+                question: "What color are the library walls painted?",
+                options: ["Bright yellow", "Light green", "Dark grey", "Pure white"],
+                correct: 1,
+                explanation: "Teks menyatakan: 'The walls are painted light green'."
+            },
+            {
+                id: 10,
+                labelType: "Descriptive Text",
+                title: "My Pet Rabbit, Hopper",
+                badgeColor: "bg-pink-100 text-pink-700 border-pink-200",
+                content: `
+                    <div class="p-4 bg-slate-50 border-2 border-pink-100 rounded-2xl text-xs space-y-2 font-mono">
+                        <p class="font-bold text-pink-900 text-sm">MY PET RABBIT</p>
+                        <p class="text-slate-600">Hopper is my cute pet rabbit. He has thick velvety grey fur, long sensitive ears, and a tiny twitching nose. He loves munching on fresh crunchy carrots and green lettuce leaves in his cozy wooden hutch.</p>
+                    </div>
+                `,
+                question: "What is Hopper's favorite food mentioned in the text?",
+                options: ["Fresh crunchy carrots and lettuce", "Cooked fish and rice", "Sweet honey and bread", "Grass seeds and worms"],
+                correct: 0,
+                explanation: "Teks menyebutkan: 'He loves munching on fresh crunchy carrots and green lettuce leaves'."
+            }
+        ];
+
+        let quizQuestions = [];
+        let currentRole = null; 
+        let currentUser = null; 
+        let currentQuestionIdx = 0;
+        let studentAnswers = []; 
+        let studentScore = 0;
+        const TEACHER_CODE = "2405020028";
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function getStoredResults() {
+            return JSON.parse(localStorage.getItem('quiz_results_ch5_db') || '[]');
+        }
+
+        function saveResultToDB(record) {
+            const results = getStoredResults();
+            const existingIdx = results.findIndex(r => r.name.toLowerCase() === record.name.toLowerCase());
+            if (existingIdx !== -1) {
+                results[existingIdx] = record;
+            } else {
+                results.push(record);
+            }
+            localStorage.setItem('quiz_results_ch5_db', JSON.stringify(results));
+        }
+
+        function setRoleForm(role) {
+            const btnStudent = document.getElementById('btn-tab-student');
+            const btnTeacher = document.getElementById('btn-tab-teacher');
+            const formStudent = document.getElementById('form-student');
+            const formTeacher = document.getElementById('form-teacher');
+
+            if (role === 'student') {
+                btnStudent.className = "py-2.5 font-fun text-sm rounded-xl font-bold transition bg-white text-emerald-600 shadow-sm";
+                btnTeacher.className = "py-2.5 font-fun text-sm rounded-xl font-bold text-slate-500 hover:text-emerald-600 transition";
+                formStudent.classList.remove('hidden');
+                formTeacher.classList.add('hidden');
+            } else {
+                btnTeacher.className = "py-2.5 font-fun text-sm rounded-xl font-bold transition bg-white text-sky-600 shadow-sm";
+                btnStudent.className = "py-2.5 font-fun text-sm rounded-xl font-bold text-slate-500 hover:text-sky-600 transition";
+                formTeacher.classList.remove('hidden');
+                formStudent.classList.add('hidden');
+            }
+        }
+
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('student-name-input').value.trim();
+            if (!nameInput) return;
+
+            currentRole = 'student';
+            currentUser = nameInput;
+
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-student-main').classList.remove('hidden');
+            document.getElementById('user-header-info').classList.remove('hidden');
+            
+            const badge = document.getElementById('role-badge');
+            badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700";
+            badge.innerText = `👨‍🎓 Siswa: ${currentUser}`;
+
+            document.getElementById('display-student-name').innerText = currentUser;
+
+            restartStudentQuiz();
+        }
+
+        function handleTeacherLogin(e) {
+            e.preventDefault();
+            const teacherName = document.getElementById('teacher-name-input').value.trim();
+            const codeInput = document.getElementById('teacher-code-input').value.trim();
+            const errorMsg = document.getElementById('teacher-login-error');
+
+            if (codeInput !== TEACHER_CODE) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            currentRole = 'teacher';
+            currentUser = teacherName;
+
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-teacher-main').classList.remove('hidden');
+            document.getElementById('user-header-info').classList.remove('hidden');
+
+            const badge = document.getElementById('role-badge');
+            badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-700";
+            badge.innerText = `👩‍🏫 Guru: ${currentUser}`;
+
+            document.getElementById('display-teacher-name').innerText = currentUser;
+
+            renderTeacherDashboard();
+        }
+
+        function logout() {
+            currentRole = null;
+            currentUser = null;
+            document.getElementById('view-student-main').classList.add('hidden');
+            document.getElementById('view-teacher-main').classList.add('hidden');
+            document.getElementById('user-header-info').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
+        }
+
+        function switchStudentTab(tab) {
+            const tabQuiz = document.getElementById('tab-quiz');
+            const contentQuiz = document.getElementById('student-tab-quiz');
+
+            tabQuiz.className = "px-4 py-2.5 rounded-xl font-fun font-bold text-xs sm:text-sm bg-emerald-600 text-white shadow-md transition";
+            contentQuiz.classList.remove('hidden');
+        }
+
+        function renderCurrentQuestion() {
+            stopSpeaking();
+            const q = quizQuestions[currentQuestionIdx];
+            const card = document.getElementById('question-card');
+
+            document.getElementById('quiz-progress-text').innerText = `Soal ${currentQuestionIdx + 1} dari ${quizQuestions.length}`;
+            document.getElementById('live-score').innerText = studentScore;
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${q.badgeColor || 'bg-emerald-100 text-emerald-700 border-emerald-200'}">${q.labelType}</span>
+                    <span class="text-xs font-bold text-slate-400">${q.title}</span>
+                </div>
+
+                <div class="mb-4 p-2 bg-emerald-50/80 rounded-2xl border border-emerald-100 flex items-center justify-between gap-2">
+                    <button id="btn-speak-narrator" onclick="speakQuestionContent()" class="w-full py-2 px-4 rounded-xl bg-white hover:bg-emerald-100 text-emerald-700 font-fun font-bold text-xs sm:text-sm border border-emerald-200 shadow-sm transition flex items-center justify-center gap-2">
+                        <i class="fas fa-volume-up text-emerald-600 text-base"></i> Putar Suara Pembaca Soal (Narasi + Soal + Pilihan)
+                    </button>
+                    <button onclick="stopSpeaking()" class="px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded-xl text-xs transition" title="Hentikan Suara">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
+
+                <div class="mb-6">
+                    ${q.content}
+                </div>
+
+                <h3 class="font-fun font-bold text-lg text-slate-800 mb-4">
+                    ${currentQuestionIdx + 1}. ${q.question}
+                </h3>
+
+                <div class="space-y-3">
+                    ${q.options.map((opt, idx) => `
+                        <button onclick="selectAnswer(${idx})" class="w-full text-left p-4 rounded-2xl border-2 border-slate-100 hover:border-emerald-400 hover:bg-emerald-50/40 transition font-medium text-xs sm:text-sm text-slate-700 flex items-center justify-between group">
+                            <span><strong class="text-slate-400 mr-2 group-hover:text-emerald-600">${String.fromCharCode(65 + idx)}.</strong> ${opt}</span>
+                            <i class="far fa-circle text-slate-300 group-hover:text-emerald-500"></i>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function selectAnswer(optIdx) {
+            stopSpeaking();
+            const q = quizQuestions[currentQuestionIdx];
+            studentAnswers[currentQuestionIdx] = optIdx;
+
+            if (optIdx === q.correct) {
+                studentScore += Math.round(100 / quizQuestions.length);
+                playSFX('correct');
+            } else {
+                playSFX('wrong');
+            }
+
+            setTimeout(() => {
+                if (currentQuestionIdx < quizQuestions.length - 1) {
+                    currentQuestionIdx++;
+                    renderCurrentQuestion();
+                } else {
+                    finishStudentQuiz();
+                }
+            }, 300);
+        }
+
+        function finishStudentQuiz() {
+            stopSpeaking();
+            playSFX('complete');
+            document.getElementById('quiz-active-screen').classList.add('hidden');
+            document.getElementById('quiz-result-screen').classList.remove('hidden');
+
+            document.getElementById('final-score-display').innerText = studentScore;
+
+            let evalMsg = "";
+            if (studentScore >= 90) evalMsg = "Luar Biasa! Pemahaman Descriptive Text Kamu Sempurna! 🎉";
+            else if (studentScore >= 70) evalMsg = "Bagus Sekali! Kamu Sudah Menguasai Materi! 👍";
+            else evalMsg = "Tetap Semangat! Yuk Pelajari Kembali Pembahasannya! 💪";
+            document.getElementById('final-score-eval').innerText = evalMsg;
+
+            const record = {
+                name: currentUser,
+                score: studentScore,
+                correctCount: studentAnswers.filter((ans, idx) => ans === quizQuestions[idx].correct).length,
+                total: quizQuestions.length,
+                answers: [...studentAnswers],
+                timestamp: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+            };
+            saveResultToDB(record);
+
+            renderAnswerReview();
+        }
+
+        function renderAnswerReview() {
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const userAnsIdx = studentAnswers[idx];
+                const isCorrect = userAnsIdx === q.correct;
+
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-2xl border-2 ${isCorrect ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200'} space-y-3`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-fun font-bold text-sm ${isCorrect ? 'text-emerald-700' : 'text-rose-700'} flex items-center gap-2">
+                            ${isCorrect ? '✅ BENAR' : '❌ SALAH'} — Soal #${idx + 1}
+                        </span>
+                    </div>
+
+                    <p class="font-bold text-xs sm:text-sm text-slate-800">${q.question}</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div class="p-2.5 rounded-xl ${isCorrect ? 'bg-emerald-100/70 text-emerald-900' : 'bg-rose-100/70 text-rose-900'} font-medium">
+                            <span class="block text-[10px] opacity-70 font-bold uppercase">Jawaban Kamu:</span>
+                            ${userAnsIdx !== undefined ? `${String.fromCharCode(65 + userAnsIdx)}. ${q.options[userAnsIdx]}` : 'Tidak dijawab'}
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-emerald-100/70 text-emerald-900 font-medium">
+                            <span class="block text-[10px] opacity-70 font-bold uppercase">Jawaban Benar:</span>
+                            ${String.fromCharCode(65 + q.correct)}. ${q.options[q.correct]}
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-white/80 rounded-xl text-xs text-slate-600 border border-slate-100">
+                        <span class="font-bold text-emerald-600">💡 Pembahasan:</span> ${q.explanation}
+                    </div>
+                `;
+
+                reviewList.appendChild(card);
+            });
+        }
+
+        function scrollToReview() {
+            document.getElementById('review-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartStudentQuiz() {
+            quizQuestions = shuffleArray(defaultQuizQuestions);
+            currentQuestionIdx = 0;
+            studentScore = 0;
+            studentAnswers = [];
+            document.getElementById('quiz-result-screen').classList.add('hidden');
+            document.getElementById('quiz-active-screen').classList.remove('hidden');
+            renderCurrentQuestion();
+        }
+
+        function renderTeacherDashboard() {
+            const results = getStoredResults();
+            results.sort((a, b) => b.score - a.score);
+
+            const total = results.length;
+            document.getElementById('stat-total-students').innerText = total;
+
+            if (total > 0) {
+                const avg = Math.round(results.reduce((acc, r) => acc + r.score, 0) / total);
+                const max = Math.max(...results.map(r => r.score));
+                const min = Math.min(...results.map(r => r.score));
+
+                document.getElementById('stat-avg-score').innerText = avg;
+                document.getElementById('stat-max-score').innerText = max;
+                document.getElementById('stat-min-score').innerText = min;
+            } else {
+                document.getElementById('stat-avg-score').innerText = 0;
+                document.getElementById('stat-max-score').innerText = 0;
+                document.getElementById('stat-min-score').innerText = 0;
+            }
+
+            const tbody = document.getElementById('teacher-leaderboard-body');
+            const emptyMsg = document.getElementById('empty-leaderboard-msg');
+            tbody.innerHTML = '';
+
+            if (total === 0) {
+                emptyMsg.classList.remove('hidden');
+            } else {
+                emptyMsg.classList.add('hidden');
+                results.forEach((rec, idx) => {
+                    let medal = `<span class="font-bold text-slate-500">#${idx + 1}</span>`;
+                    if (idx === 0) medal = `🥇 <span class="font-bold text-amber-500">1</span>`;
+                    else if (idx === 1) medal = `🥈 <span class="font-bold text-slate-400">2</span>`;
+                    else if (idx === 2) medal = `🥉 <span class="font-bold text-amber-700">3</span>`;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 transition";
+                    row.innerHTML = `
+                        <td class="p-3 text-center">${medal}</td>
+                        <td class="p-3 font-bold text-slate-800">${escapeHtml(rec.name)}</td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${rec.score >= 70 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                                ${rec.score} / 100
+                            </span>
+                        </td>
+                        <td class="p-3 text-center font-bold text-slate-600">${rec.correctCount} / ${rec.total}</td>
+                        <td class="p-3 text-center text-slate-400 text-[11px]">${rec.timestamp}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="viewStudentDetails('${escapeHtml(rec.name)}')" class="px-2.5 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-xs font-bold transition">
+                                Detail
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function viewStudentDetails(studentName) {
+            const results = getStoredResults();
+            const record = results.find(r => r.name.toLowerCase() === studentName.toLowerCase());
+            if (!record) return;
+
+            let wrongNums = [];
+            record.answers.forEach((ans, idx) => {
+                if (ans !== quizQuestions[idx]?.correct) {
+                    wrongNums.push(idx + 1);
+                }
+            });
+
+            alert(`Siswa: ${record.name}\nSkor: ${record.score}\nSalah pada Soal Nomor: ${wrongNums.length > 0 ? wrongNums.join(', ') : 'Tidak ada (Sempurna)'}`);
+        }
+
+        function clearAllStudentData() {
+            if (confirm("Apakah Anda yakin ingin menghapus seluruh hasil kuis siswa Chapter 5?")) {
+                localStorage.removeItem('quiz_results_ch5_db');
+                renderTeacherDashboard();
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
